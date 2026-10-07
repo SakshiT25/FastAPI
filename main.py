@@ -1,66 +1,49 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-app = FastAPI()
 
-@app.get("/")
+app= FastAPI()
 
-# class user(BaseModel):
-#     name: str
-#     age: int
-#     email: str
-# def home():
-#     return {"message":"Hello from vern"}
+todos = [] 
+class Todo(BaseModel):
+    title: str
+    id: int
+    completed: bool
 
-# @app.get("/about")
-# def about():
-#     return {"message":"This is a FastAPI application."}
 
-# @app.get("/users/{user_id}")
-# def users(user_id:int):
-#     return {"user_id": user_id}
+@app.post("/todos")
+def create_todo(todo:Todo):
+    todos.append(todo)
+    return {"message": "Todo created successfully",
+    "data":todos}
 
-# @app.get("/users")
-# def users(name: str=None):
-#     return {"name": name}
-
-# @app.get("/products")
-# def products(limit:int=10):
-#     return {"limit": limit} 
-
-# @app.get("/items")
-# def items(quantity:int=0, price:float=0.0):
-#     return {"quantity":quantity, "price":price}
-
-# @app.post("/create-user")
-# def create_user(user: dict):
-#     return {
-#         "message": "data received successfully",
-#         "data": user,
-#         "status":"success"
-#     }
-
-# @app.post("/create-user2")
-# def create_user2(user: user):
-#     return {
-#         "message": "data received successfully",
-#         "data": user,
-#         "status":"success"
-#     }   
-
-class Address(BaseModel):
-    pincodeL: int
-    city: str
-
-class User(BaseModel):
-    name: str
-    age: int
-    address: Address
-
-@app.post("/create-user")
-def create_user(user:User):
-    return {
-        "message": "data received successfully",
-        "data": user, 
-        "status":"success"
-    }
+@app.get("/todos")
+def get_todos():
+    return {"message": "Todos retrieved successfully",
+    "data":todos}
     
+@app.get("/todos/{todo_id}")
+def get_todo(todo_id:int):
+    for todo in todos:
+        if todo.id == todo_id:
+            return {"message": "Todo retrieved successfully",
+            "data":todo}
+    return {"message": "Todo not found"}
+
+
+@app.put("/todos/{todo_id}")
+def update_todo(todo_id:int, updated_todo:Todo):
+    for index, todo in enumerate(todos):
+        if todo.id == todo_id:
+            todos[index] = updated_todo
+            return {"message": "Todo updated successfully",
+            "data":updated_todo}
+    return {"message": "Todo not found"}
+
+
+@app.delete("/todos/{todo_id}")
+def delete_todo(todo_id:int):
+    for index, todo in enumerate(todos):
+        if todo.id == todo_id:
+            todos.pop(index)
+            return {"message": "Todo deleted successfully"}
+    return {"message": "Todo not found"}
